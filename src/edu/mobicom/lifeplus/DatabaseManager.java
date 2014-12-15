@@ -161,7 +161,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 		db.close();
 	}
 
-	public void setAsDone(int id) {
+	public boolean setAsDone(int id) {
 		SQLiteDatabase db = getWritableDatabase();
 		ContentValues values = new ContentValues();
 
@@ -179,11 +179,14 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
 		db.close();
 		
+		boolean levelUp;
 		Profile p = getActiveProfile();
-		gainEXP(p, difficulty, type);
+		levelUp = gainEXP(p, difficulty, type);
 		
 		p = getActiveProfile();
 		gainCredits(p, difficulty);
+		
+		return levelUp;
 	}
 
 	public ArrayList<Task> getDailyQuests() {
@@ -245,6 +248,60 @@ public class DatabaseManager extends SQLiteOpenHelper {
 		db.close();
 
 		return daily;
+	}
+	
+	public void resetFinishedDailyQuest() {
+
+		SQLiteDatabase db = getReadableDatabase();
+		Cursor c = db.query(Task.TABLE_NAME, null, Task.COLUMN_TYPE + " = ?",
+				new String[] { "1" }, null, null, null);
+		
+		ArrayList<Task> todo = new ArrayList<Task>();
+
+		if (c.moveToFirst()) {
+			do {
+
+				int id = c.getInt(c.getColumnIndex(Task.COLUMN_ID));
+				int status = c.getInt(c.getColumnIndex(Task.COLUMN_STATUS));
+				boolean isFinished;
+				if (status == 1) {
+					isFinished = true;
+				} else 
+					isFinished = false;
+				
+				if (isFinished){
+					ContentValues values = new ContentValues();
+					values.put(Task.COLUMN_STATUS, 0);
+					db.update(Task.TABLE_NAME, values, Task.COLUMN_ID + "= ?",
+							new String[] { String.valueOf(id) });
+				}
+			} while (c.moveToNext());
+		}
+
+		c.close();
+		db.close();
+
+	}
+	
+	public void deleteGenerated() {
+
+		SQLiteDatabase db = getReadableDatabase();
+		Cursor c = db.query(Task.TABLE_NAME, null, Task.COLUMN_GENERATED + " = ?",
+				new String[] { "1" }, null, null, null);
+		
+		ArrayList<Task> todo = new ArrayList<Task>();
+
+		if (c.moveToFirst()) {
+			do {
+				int id = c.getInt(c.getColumnIndex(Task.COLUMN_ID));
+				db.delete(Task.TABLE_NAME, Task.COLUMN_ID + " =? ",
+						new String[] { String.valueOf(id) });
+			} while (c.moveToNext());
+		}
+
+		c.close();
+		db.close();
+
 	}
 
 	public ArrayList<Task> getTodoList() {
@@ -323,16 +380,23 @@ public class DatabaseManager extends SQLiteOpenHelper {
 		db.close();
 	}
 
-	public void gainEXP(Profile p, int difficulty, int type) {
+	public boolean gainEXP(Profile p, int difficulty, int type) {
 		SQLiteDatabase db = getWritableDatabase();
 		ContentValues values = new ContentValues();
+		boolean levelUp = false;
+		int currLevel = p.getLevel();
+		
 		p.gainExp(difficulty, type);
+		if(p.getLevel() - currLevel > 0)
+			levelUp = true;
 
 		values.put(Profile.COLUMN_EXP, p.getExp());
 
 		db.update(Profile.TABLE_NAME, values, Profile.COLUMN_ID + "= ?",
 				new String[] { String.valueOf(p.getId()) });
 		db.close();
+		
+		return levelUp;
 	}
 	
 	public void gainCredits(Profile p, int difficulty) {

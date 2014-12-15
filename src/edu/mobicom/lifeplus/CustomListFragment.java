@@ -3,6 +3,7 @@ package edu.mobicom.lifeplus;
 import java.util.ArrayList;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.app.AlertDialog.Builder;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -137,6 +138,10 @@ public class CustomListFragment extends Fragment implements
 				if (temp.getStatus()) {
 					Toast.makeText(getActivity(),
 							"Finished tasks can no longer be edited.",
+							Toast.LENGTH_SHORT).show();
+				} else if (temp.getGenerated()) {
+					Toast.makeText(getActivity(),
+							"Generated tasks can not be edited.",
 							Toast.LENGTH_SHORT).show();
 				} else {
 					if (mSectionNumber == 1) {
@@ -342,9 +347,24 @@ public class CustomListFragment extends Fragment implements
 				case 1:
 					for (int i = 0; i < mAdapter.getCount(); i++) {
 						Task temp = (Task) mAdapter.getItem(i);
+						boolean levelUp = false;
 						if (temp.getChecked()) {
-							db.setAsDone(temp.getID());
+							levelUp = db.setAsDone(temp.getID());
 							db.setChecked(temp.getID(), false);
+							
+							if(levelUp) {
+								new AlertDialog.Builder(getActivity())
+								.setTitle("Level Up!")
+								.setMessage(
+										"You are now level " + String.format("%02d", db.getActiveProfile().getLevel()))
+								.setPositiveButton("Close",
+										new DialogInterface.OnClickListener() {
+											public void onClick(DialogInterface dialog,
+													int which) {
+												// continue with delete
+											}
+										}).show();
+							}
 						}
 					}
 

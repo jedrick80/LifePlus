@@ -78,7 +78,7 @@ public class ProfileFragment extends Fragment {
 		if (p != null) {
 			name.setText(p.getName());
 			level.setText("Level: " + String.format("%02d", p.getLevel()));
-			EXP.setText(p.getExp() * 100.0f / p.expForNextLevel() + "%");
+			EXP.setText(String.format("%.02f",p.getPercentage()) + "%");
 			credits.setText(p.getCredits() + "");
 			image.setImageBitmap(p.getImage());
 		}

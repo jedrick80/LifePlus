@@ -114,12 +114,15 @@ public class EditToDoFragment extends Fragment {
 		ibNew = (ImageButton) v.findViewById(R.id.ib_edit_todo_capture);
 		ibExisting = (ImageButton) v.findViewById(R.id.ib_edit_todo_browse);
 		ivImage = (ImageView) v.findViewById(R.id.iv_edit_todo);
-		TextView tvStatus = (TextView) v.findViewById(R.id.tv_edit_todo_StatusUpdate);
+		TextView tvStatus = (TextView) v
+				.findViewById(R.id.tv_edit_todo_StatusUpdate);
 		TextView tvDifficulty = (TextView) v
 				.findViewById(R.id.tv_edit_todo_DifficultyValue);
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
 				getActivity(), R.array.spinner_difficulty,
 				android.R.layout.simple_spinner_item);
+		final String[] monthName = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+				"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 		mTask = null;
 		for (Task t : db.getTodoList())
@@ -129,8 +132,15 @@ public class EditToDoFragment extends Fragment {
 		etName.setText(mTask.getName());
 		etDesc.setText(mTask.getDesc());
 		etTime.setText(mTask.getTime());
-		if(mTask.getDate() != null)
-			etDate.setText(new SimpleDateFormat("Mmm dd yyyy").format(mTask.getDate()));
+		if (mTask.getDate() != null) {
+			etDate.setText(new SimpleDateFormat("MM dd yyyy").format(mTask
+					.getDate()));
+			etDate.setText(monthName[Integer.parseInt(etDate.getText()
+					.toString().substring(0, 2)) - 1]
+					+ etDate.getText().toString().substring(2, 5)
+					+ ","
+					+ etDate.getText().toString().substring(5));
+		}
 		ivImage.setImageBitmap(mTask.getImage());
 
 		if (mTask.getStatus() == true)
@@ -177,8 +187,6 @@ public class EditToDoFragment extends Fragment {
 				int mYear = c.get(Calendar.YEAR);
 				int mMonth = c.get(Calendar.MONTH);
 				int mDay = c.get(Calendar.DAY_OF_MONTH);
-				final String[] monthName = { "Jan", "Feb", "Mar", "Apr", "May",
-						"Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
 
 				// Launch Date Picker Dialog
 				DatePickerDialog dpd = new DatePickerDialog(getActivity(),
@@ -314,6 +322,13 @@ public class EditToDoFragment extends Fragment {
 		if (item.getItemId() == R.id.done) {
 			String name = etName.getText().toString();
 			String desc = etDesc.getText().toString();
+			
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(System.currentTimeMillis());
+			cal.add(Calendar.DAY_OF_YEAR, -1);
+			cal.set(Calendar.HOUR_OF_DAY, 23);
+			cal.set(Calendar.MINUTE, 59);
+			cal.set(Calendar.SECOND, 59);
 
 			if (name.isEmpty())
 				Toast.makeText(getActivity(),
@@ -322,6 +337,10 @@ public class EditToDoFragment extends Fragment {
 			else if (desc.isEmpty())
 				Toast.makeText(getActivity(),
 						"Please enter a description for the task.",
+						Toast.LENGTH_SHORT).show();
+			else if (cal.getTime().compareTo(mDate) == 1)
+				Toast.makeText(getActivity(),
+						"Please enter a valid date for the task.",
 						Toast.LENGTH_SHORT).show();
 			else {
 				mTask.setName(name);

@@ -286,7 +286,14 @@ public class AddToDoFragment extends Fragment {
 		if (item.getItemId() == R.id.done) {
 			String name = etName.getText().toString();
 			String desc = etDesc.getText().toString();
-
+			
+			Calendar cal = Calendar.getInstance();
+			cal.setTimeInMillis(System.currentTimeMillis());
+			cal.add(Calendar.DAY_OF_YEAR, -1);
+			cal.set(Calendar.HOUR_OF_DAY, 23);
+			cal.set(Calendar.MINUTE, 59);
+			cal.set(Calendar.SECOND, 59);
+			
 			if (name.isEmpty())
 				Toast.makeText(getActivity(),
 						"Please enter a name for the task.", Toast.LENGTH_SHORT)
@@ -294,6 +301,10 @@ public class AddToDoFragment extends Fragment {
 			else if (desc.isEmpty())
 				Toast.makeText(getActivity(),
 						"Please enter a description for the task.",
+						Toast.LENGTH_SHORT).show();
+			else if (cal.getTime().compareTo(mDate) == 1)
+				Toast.makeText(getActivity(),
+						"Please enter a valid date for the task.",
 						Toast.LENGTH_SHORT).show();
 			else {
 				Task newTodo = new Task(name, desc,

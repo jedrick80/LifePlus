@@ -68,7 +68,7 @@ public class Profile {
 
 		switch(difficulty) {
 		case 0:
-			temp = 10;
+			temp = 15;
 			break;
 		case 1:
 			temp = 30;
@@ -91,6 +91,13 @@ public class Profile {
 			temp = (int) temp / 3;
 
 		this.exp = exp + temp;
+	}
+	
+	public double getPercentage(){
+		double usedExp = 0;
+		if(getLevel() > 1)
+			usedExp = Math.pow((getLevel() - 1)/0.05,2);
+		return ((exp - usedExp) /(expForNextLevel() - usedExp))*100;
 	}
 
 	public void gainCredits(int difficulty) {
@@ -125,7 +132,7 @@ public class Profile {
 	}
 
 	public int expForNextLevel() {
-		return (int) Math.round((Math.pow((getLevel() + 1) / 0.05, 2)));
+		return (int) Math.round((Math.pow((getLevel()) / 0.05, 2)));
 	}
 
 	public void setName(String name) {
@@ -175,11 +182,8 @@ public class Profile {
 		setLastDateGenerated(System.currentTimeMillis());
 		now.setTimeInMillis(lastDateGenerated);
 		
-		if(lastDateGenerated == 0 || cal.compareTo(now) == 1){
-			// Generate
-			
+		if(lastDateGenerated == 0 || cal.compareTo(now) == -1) 
 			return true;
-		}
 		
 		return false; // return true if update is needed, returns false if not
 		

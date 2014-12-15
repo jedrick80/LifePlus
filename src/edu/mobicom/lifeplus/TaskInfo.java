@@ -31,7 +31,7 @@ public class TaskInfo extends Fragment {
 	private Task mTask;
 
 	private OnFragmentInteractionListener mListener;
-	
+
 	public static TaskInfo newInstance(int itemID) {
 		TaskInfo fragment = new TaskInfo();
 		mItemID = itemID;
@@ -47,7 +47,7 @@ public class TaskInfo extends Fragment {
 		super.onCreate(savedInstanceState);
 		setHasOptionsMenu(true);
 		db = new DatabaseManager(getActivity(), Task.DATABASE_NAME, null, 1);
-		
+
 		for (Task t : db.getDailyQuests())
 			if (t.getID() == mItemID)
 				mTask = t;
@@ -59,48 +59,60 @@ public class TaskInfo extends Fragment {
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		View v = inflater.inflate(R.layout.fragment_task_info, container, false);
-		
-		if(mTask != null) {
+		View v = inflater
+				.inflate(R.layout.fragment_task_info, container, false);
+
+		if (mTask != null) {
 			TextView tvName = (TextView) v.findViewById(R.id.tv_view_name);
 			TextView tvDesc = (TextView) v.findViewById(R.id.tv_view_desc);
 			TextView tvDiff = (TextView) v.findViewById(R.id.tv_view_diff);
-			TextView tvDateDurr = (TextView) v.findViewById(R.id.tv_view_date_durr);
-			TextView tvDateDurrLabel = (TextView) v.findViewById(R.id.tv_view_date_durr_label);
+			TextView tvDateDurr = (TextView) v
+					.findViewById(R.id.tv_view_date_durr);
+			TextView tvDateDurrLabel = (TextView) v
+					.findViewById(R.id.tv_view_date_durr_label);
 			TextView tvTime = (TextView) v.findViewById(R.id.tv_view_time);
 			TextView tvStat = (TextView) v.findViewById(R.id.tv_view_stat);
 			ImageView ivImage = (ImageView) v.findViewById(R.id.iv_view);
-			
-			ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
-					getActivity(), R.array.spinner_difficulty,
-					android.R.layout.simple_spinner_item);
-			
+			final String[] monthName = { "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+					"Jul", "Aug", "Sep", "Oct", "Nov", "Dec" };
+
+			ArrayAdapter<CharSequence> adapter = ArrayAdapter
+					.createFromResource(getActivity(),
+							R.array.spinner_difficulty,
+							android.R.layout.simple_spinner_item);
+
 			tvName.setText(mTask.getName());
 			tvDesc.setText(mTask.getDesc());
 			tvDiff.setText(adapter.getItem(mTask.getDifficulty()));
-			
-			if(mTask.getType() == 1) {
+
+			if (mTask.getType() == 1) {
 				tvDateDurrLabel.setText("Duration: ");
 				tvDateDurr.setText(mTask.getDuration());
 			} else if (mTask.getType() == 2) {
 				tvDateDurrLabel.setText("Date: ");
-				tvDateDurr.setText(new SimpleDateFormat("Mmm dd yyyy").format(mTask.getDate()));
+				tvDateDurr.setText(new SimpleDateFormat("MM dd yyyy")
+						.format(mTask.getDate()));
+				tvDateDurr.setText(monthName[Integer.parseInt(tvDateDurr
+						.getText().toString().substring(0, 2)) - 1]
+						+ tvDateDurr.getText().toString().substring(2, 5)
+						+ ","
+						+ tvDateDurr.getText().toString().substring(5));
 			}
-			
-			if(mTask.getTime().equals("00:00"))
+
+			if (mTask.getTime().equals("00:00"))
 				tvTime.setText("");
 			else
 				tvTime.setText(mTask.getTime());
-			
+
 			if (mTask.getStatus() == true)
 				tvStat.setText("Finished");
 			else
 				tvStat.setText("Active");
-			
-			if(mTask.getImage() != null)
+
+			if (mTask.getImage() != null)
 				ivImage.setImageBitmap(mTask.getImage());
 		}
-		
+
 		return v;
 	}
 
@@ -150,20 +162,20 @@ public class TaskInfo extends Fragment {
 		// TODO: Update argument type and name
 		public void onFragmentInteraction(Uri uri);
 	}
-	
+
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		// TODO Auto-generated method stub
 		super.onCreateOptionsMenu(menu, inflater);
 		inflater.inflate(R.menu.view_task, menu);
 	}
-	
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		if(item.getItemId() == R.id.discard) {
-			if(mTask.getType() == 1) {
-				Fragment daily_quest_fragment = CustomListFragment.newInstance(1,
-						db.getDailyQuests());
+		if (item.getItemId() == R.id.discard) {
+			if (mTask.getType() == 1) {
+				Fragment daily_quest_fragment = CustomListFragment.newInstance(
+						1, db.getDailyQuests());
 				daily_quest_fragment.setHasOptionsMenu(true);
 
 				getActivity().getFragmentManager().beginTransaction()
@@ -177,7 +189,7 @@ public class TaskInfo extends Fragment {
 						.replace(R.id.container, todo_fragment).commit();
 			}
 		}
-		
+
 		return super.onOptionsItemSelected(item);
 	}
 
