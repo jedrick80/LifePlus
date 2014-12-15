@@ -7,6 +7,7 @@ import android.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 /**
  * A simple {@link Fragment} subclass. Activities that contain this fragment
@@ -17,12 +18,10 @@ import android.view.ViewGroup;
  *
  */
 public class ProfileFragment extends Fragment {
-	// TODO: Rename parameter arguments, choose names that match
-	// the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
 	private static final String ARG_SECTION_NUMBER = "section_number";
 
-	// TODO: Rename and change types of parameters
 	private int mSectionNumber;
+	private DatabaseManager db;
 
 	private OnFragmentInteractionListener mListener;
 
@@ -55,13 +54,29 @@ public class ProfileFragment extends Fragment {
 		if (getArguments() != null) {
 			mSectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
 		}
+		db = new DatabaseManager(getActivity(), Task.DATABASE_NAME, null, 1);
 	}
 
 	@Override
 	public View onCreateView(LayoutInflater inflater, ViewGroup container,
 			Bundle savedInstanceState) {
-		// Inflate the layout for this fragment
-		return inflater.inflate(R.layout.fragment_profile, container, false);
+		View v = inflater.inflate(R.layout.fragment_profile,
+				container, false);
+
+		TextView name = (TextView) v.findViewById(R.id.tv_name);
+		TextView level = (TextView) v.findViewById(R.id.tv_level);
+		TextView EXP = (TextView) v.findViewById(R.id.tv_EXP);
+		TextView credits = (TextView) v.findViewById(R.id.tv_credits_value);
+		Profile p = db.getActiveProfile();
+		
+		if(p != null){
+			name.setText(p.getName());
+			level.setText("Level: " + String.format("%02d", p.getLevel()));
+			EXP.setText(p.getExp()/p.expForNextLevel() + "%");
+			credits.setText(p.getCredits() + "");
+		}
+		
+		return v;
 	}
 
 	// TODO: Rename method, update argument and hook method into UI event

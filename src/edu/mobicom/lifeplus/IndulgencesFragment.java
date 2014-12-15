@@ -13,14 +13,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
-import android.view.View.OnLongClickListener;
-import android.view.View.OnTouchListener;
 import android.view.ViewGroup;
 import android.widget.AbsListView;
 import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemLongClickListener;
-import android.widget.ArrayAdapter;
-import android.widget.CheckBox;
 import android.widget.ListAdapter;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
@@ -46,6 +41,16 @@ public class IndulgencesFragment extends Fragment implements
 	// TODO: Rename and change types of parameters
 	private int mSectionNumber;
 	private ArrayList<Indulgence> mValues;
+	private SwipeDetector swipe = new SwipeDetector();
+	DatabaseManager db;
+
+	private static enum Action {
+		LR, // Left to Right
+		RL, // Right to Left
+		TB, // Top to bottom
+		BT, // Bottom to Top
+		None // when no action was detected
+	}
 
 	private OnFragmentInteractionListener mListener;
 
@@ -61,7 +66,8 @@ public class IndulgencesFragment extends Fragment implements
 	private ListAdapter mAdapter;
 
 	// TODO: Rename and change types of parameters
-	public static IndulgencesFragment newInstance(int sectionNumber, ArrayList<Indulgence> values) {
+	public static IndulgencesFragment newInstance(int sectionNumber,
+			ArrayList<Indulgence> values) {
 		IndulgencesFragment fragment = new IndulgencesFragment();
 		Bundle args = new Bundle();
 		args.putInt(ARG_SECTION_NUMBER, sectionNumber);
@@ -84,9 +90,11 @@ public class IndulgencesFragment extends Fragment implements
 
 		if (getArguments() != null) {
 			mSectionNumber = getArguments().getInt(ARG_SECTION_NUMBER);
-			mValues = (ArrayList<Indulgence>) getArguments().getSerializable(ARG_VALUES);
+			mValues = (ArrayList<Indulgence>) getArguments().getSerializable(
+					ARG_VALUES);
 		}
 
+		db = new DatabaseManager(getActivity(), Task.DATABASE_NAME, null, 1);
 		mAdapter = new IndulgencesAdapter(getActivity(), mValues);
 	}
 
@@ -102,7 +110,8 @@ public class IndulgencesFragment extends Fragment implements
 
 		// Set OnItemClickListener so we can be notified on item clicks
 		mListView.setOnItemClickListener(this);
-		
+		mListView.setOnTouchListener(swipe);
+
 		return view;
 	}
 
@@ -111,11 +120,11 @@ public class IndulgencesFragment extends Fragment implements
 		super.onAttach(activity);
 		try {
 			mListener = new OnFragmentInteractionListener() {
-				
+
 				@Override
 				public void onFragmentInteraction(String id) {
 					// TODO Auto-generated method stub
-					
+
 				}
 			};
 			((MainActivity) activity).onSectionAttached(getArguments().getInt(
@@ -138,6 +147,53 @@ public class IndulgencesFragment extends Fragment implements
 		if (null != mListener) {
 			// Notify the active callbacks interface (the activity, if the
 			// fragment is attached to one) that an item has been selected.
+			RelativeLayout rl = (RelativeLayout) view;
+			final TextView indulgenceID = (TextView) rl
+					.findViewById(R.id.indulgencesID);
+			final TextView name = (TextView) rl
+					.findViewById(R.id.indulgencesName);
+
+			if (swipe.swipeDetected()) {
+				if (swipe.getAction() == Action.RL) {
+					Builder builder = new Builder(getActivity());
+					builder.setTitle("Delete indulgence");
+					builder.setMessage("Are you sure you want to delete \""
+							+ name.getText().toString() + "\"?");
+
+					builder.setPositiveButton("Yes",
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+									Toast.makeText(
+											getActivity(),
+											"\"" + name.getText().toString()
+													+ "\" was deleted.",
+											Toast.LENGTH_SHORT).show();
+									db.deleteIndulgence(Integer
+											.parseInt(indulgenceID.getText()
+													.toString()));
+									mAdapter = new IndulgencesAdapter(
+											getActivity(), db.getIndulgenceList());
+									mListView.setAdapter(mAdapter);
+								}
+
+							});
+
+					builder.setNegativeButton("No",
+							new DialogInterface.OnClickListener() {
+
+								@Override
+								public void onClick(DialogInterface dialog,
+										int which) {
+								}
+
+							});
+
+					builder.create().show();
+				}
+			}
 		}
 	}
 
@@ -172,9 +228,86 @@ public class IndulgencesFragment extends Fragment implements
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
 		// TODO Auto-generated method stub
 		super.onCreateOptionsMenu(menu, inflater);
-		menu.add("Credits: ");
-		MenuItem credits = menu.getItem(0);
-		credits.setShowAsAction(MenuItem.SHOW_AS_ACTION_ALWAYS);
-		
+		inflater.inflate(R.menu.list_indulgences, menu);
+		if(db.getActiveProfile() != null)
+			menu.getItem(0).setTitle("Credits: " + db.getActiveProfile().getCredits());
 	}
+
+	@Override
+	public boolean onOptionsItemSelected(MenuItem item) {
+		// TODO Auto-generated method stub
+		if (item.getItemId() == R.id.add_indulgence) {
+			Fragment add_indulgence_fragment = AddIndulgenceFragment
+					.newInstance();
+			add_indulgence_fragment.setHasOptionsMenu(true);
+
+			getFragmentManager().beginTransaction()
+					.replace(R.id.container, add_indulgence_fragment).commit();
+		}
+
+		return super.onOptionsItemSelected(item);
+	}
+
+	public class SwipeDetector implements View.OnTouchListener {
+
+		private static final String logTag = "SwipeDetector";
+		private static final int MIN_DISTANCE = 100;
+		private float downX, downY, upX, upY;
+		private Action mSwipeDetected = Action.None;
+
+		public boolean swipeDetected() {
+			return mSwipeDetected != Action.None;
+		}
+
+		public Action getAction() {
+			return mSwipeDetected;
+		}
+
+		public boolean onTouch(View v, MotionEvent event) {
+			switch (event.getAction()) {
+			case MotionEvent.ACTION_DOWN: {
+				downX = event.getX();
+				downY = event.getY();
+				mSwipeDetected = Action.None;
+				return false; // allow other events like Click to be processed
+			}
+			case MotionEvent.ACTION_MOVE: {
+				upX = event.getX();
+				upY = event.getY();
+
+				float deltaX = downX - upX;
+				float deltaY = downY - upY;
+
+				// horizontal swipe detection
+				if (Math.abs(deltaX) > MIN_DISTANCE) {
+					// left or right
+					if (deltaX < 0) {
+						mSwipeDetected = Action.LR;
+						return true;
+					}
+					if (deltaX > 0) {
+						mSwipeDetected = Action.RL;
+						return true;
+					}
+				} else
+
+				// vertical swipe detection
+				if (Math.abs(deltaY) > MIN_DISTANCE) {
+					// top or down
+					if (deltaY < 0) {
+						mSwipeDetected = Action.TB;
+						return false;
+					}
+					if (deltaY > 0) {
+						mSwipeDetected = Action.BT;
+						return false;
+					}
+				}
+				return true;
+			}
+			}
+			return false;
+		}
+	}
+
 }

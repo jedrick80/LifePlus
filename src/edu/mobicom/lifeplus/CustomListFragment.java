@@ -123,7 +123,6 @@ public class CustomListFragment extends Fragment implements
 
 			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
 					int pos, long id) {
-				// TODO Auto-generated method stub
 				RelativeLayout rl = (RelativeLayout) arg1;
 				TextView itemID = (TextView) rl.findViewById(R.id.itemID);
 				String sItemID = itemID.getText().toString();
@@ -202,8 +201,6 @@ public class CustomListFragment extends Fragment implements
 			RelativeLayout rl = (RelativeLayout) view;
 			final TextView itemID = (TextView) rl.findViewById(R.id.itemID);
 			final TextView name = (TextView) rl.findViewById(R.id.itemName);
-			final TextView desc = (TextView) rl.findViewById(R.id.itemDesc);
-			final CheckBox cb = (CheckBox) rl.findViewById(R.id.itemCheck);
 
 			if (swipe.swipeDetected()) {
 				if (swipe.getAction() == Action.RL) {
@@ -233,7 +230,6 @@ public class CustomListFragment extends Fragment implements
 										mAdapter = new CustomAdapter(
 												getActivity(), db.getTodoList());
 									mListView.setAdapter(mAdapter);
-
 								}
 
 							});
@@ -256,7 +252,6 @@ public class CustomListFragment extends Fragment implements
 
 	@Override
 	public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-		// TODO Auto-generated method stub
 		super.onCreateOptionsMenu(menu, inflater);
 		if (mSectionNumber == 1)
 			inflater.inflate(R.menu.list_daily_quest, menu);
@@ -266,7 +261,6 @@ public class CustomListFragment extends Fragment implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
-		// TODO Auto-generated method stub
 		if (item.getItemId() == R.id.add_quest) {
 			Fragment add_daily_quest_fragment = AddDailyQuestFragment
 					.newInstance();

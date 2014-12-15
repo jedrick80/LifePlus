@@ -72,6 +72,7 @@
             android:maxLines="1"
             android:minLines="1"
             android:hint="minimum of 50 credits"
+            android:inputType="number"
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
 

@@ -52,8 +52,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
 		
 		db.execSQL("CREATE TABLE "+ Profile.TABLE_NAME + " ("
 				+ Profile.COLUMN_ID + " integer PRIMARY KEY autoincrement,"
+				+ Profile.COLUMN_NAME + " text,"
 				+ Profile.COLUMN_EXP + " integer,"
-				+ Profile.COLUMN_CREDITS + " integer)");
+				+ Profile.COLUMN_CREDITS + " integer,"
+				+ Profile.COLUMN_ACTIVE + " boolean)");
 	}
 
 	@Override
@@ -99,17 +101,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 		if (t.getType() == 2)
 			if(t.getDate() != null)
 				values.put(Task.COLUMN_DATE, t.getDate().toString());
-
-		db.update(Task.TABLE_NAME, values, Task.COLUMN_ID + "= ?",
-				new String[] { String.valueOf(id) });
-		db.close();
-	}
-
-	public void setDone(int id, Boolean Done) {
-		SQLiteDatabase db = getWritableDatabase();
-		ContentValues values = new ContentValues();
-
-		values.put(Task.COLUMN_STATUS, Done);
 
 		db.update(Task.TABLE_NAME, values, Task.COLUMN_ID + "= ?",
 				new String[] { String.valueOf(id) });
@@ -176,7 +167,21 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
 		db.update(Task.TABLE_NAME, values, Task.COLUMN_ID + "= ?",
 				new String[] { String.valueOf(id) });
+		
+		Cursor c = db.query(Task.TABLE_NAME, null, Task.COLUMN_ID + " = ?",
+				new String[] { String.valueOf(id) }, null, null, null);
+		
+		c.moveToFirst();
+		int difficulty = c.getInt(c.getColumnIndex(Task.COLUMN_DIFFICULTY));
+		int type = c.getInt(c.getColumnIndex(Task.COLUMN_TYPE));
+
 		db.close();
+		
+		Profile p = getActiveProfile();
+		gainEXP(p, difficulty, type);
+		
+		p = getActiveProfile();
+		gainCredits(p, difficulty);
 	}
 
 	public ArrayList<Task> getDailyQuests() {
@@ -316,14 +321,26 @@ public class DatabaseManager extends SQLiteOpenHelper {
 		db.close();
 	}
 
-	public void gainEXP(Profile p, int difficulty) {
+	public void gainEXP(Profile p, int difficulty, int type) {
 		SQLiteDatabase db = getWritableDatabase();
 		ContentValues values = new ContentValues();
-		p.gainExp(difficulty);
+		p.gainExp(difficulty, type);
 
 		values.put(Profile.COLUMN_EXP, p.getExp());
 
-		db.update(Task.TABLE_NAME, values, Task.COLUMN_ID + "= ?",
+		db.update(Profile.TABLE_NAME, values, Task.COLUMN_ID + "= ?",
+				new String[] { String.valueOf(p.getId()) });
+		db.close();
+	}
+	
+	public void gainCredits(Profile p, int difficulty) {
+		SQLiteDatabase db = getWritableDatabase();
+		ContentValues values = new ContentValues();
+		p.gainCredits(difficulty);
+
+		values.put(Profile.COLUMN_CREDITS, p.getCredits());
+
+		db.update(Profile.TABLE_NAME, values, Task.COLUMN_ID + "= ?",
 				new String[] { String.valueOf(p.getId()) });
 		db.close();
 	}
@@ -334,7 +351,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
 		values.put(Profile.COLUMN_CREDITS, p.getCredits());
 
-		db.update(Task.TABLE_NAME, values, Task.COLUMN_ID + "= ?",
+		db.update(Profile.TABLE_NAME, values, Task.COLUMN_ID + "= ?",
 				new String[] { String.valueOf(p.getId()) });
 		db.close();
 	}
@@ -348,7 +365,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 		values.put(Indulgence.COLUMN_DESC, i.getDesc());
 		values.put(Indulgence.COLUMN_PRICE, i.getPrice());
 
-		db.insert(Task.TABLE_NAME, null, values);
+		db.insert(Indulgence.TABLE_NAME, null, values);
 		db.close();
 	}
 
@@ -360,7 +377,6 @@ public class DatabaseManager extends SQLiteOpenHelper {
 	}
 
 	public ArrayList<Indulgence> getIndulgenceList() {
-
 		SQLiteDatabase db = getReadableDatabase();
 		Cursor c = db.query(Indulgence.TABLE_NAME, null, null, null, null,
 				null, null);
@@ -386,6 +402,76 @@ public class DatabaseManager extends SQLiteOpenHelper {
 		db.close();
 
 		return indulge;
+	}
+
+	public Profile getActiveProfile() {
+		SQLiteDatabase db = getReadableDatabase();
+		Cursor c = db.query(Profile.TABLE_NAME, null, null, null, null, null,
+				null);
+
+		Profile p = null;
+
+		if (c.moveToFirst()) {
+			do {
+				int id = c.getInt(c.getColumnIndex(Profile.COLUMN_ID));
+				String name = c.getString(c
+						.getColumnIndex(Profile.COLUMN_NAME));
+				int exp = c.getInt(c.getColumnIndex(Profile.COLUMN_EXP));
+				int credits = c.getInt(c.getColumnIndex(Profile.COLUMN_CREDITS));
+				int active = c.getInt(c.getColumnIndex(Profile.COLUMN_ACTIVE));
+				
+				boolean isActive;
+				if (active == 1) {
+					isActive = true;
+				} else {
+					isActive = false;
+				}
+				
+				if(isActive)
+					p = new Profile(id, name, credits, exp, isActive);
+			} while (c.moveToNext());
+		}
+
+		c.close();
+		db.close();
+
+		return p;
+	}
+	
+	public void addProfile(Profile p) {
+		SQLiteDatabase db = getWritableDatabase();
+
+		ContentValues values = new ContentValues();
+
+		values.put(Profile.COLUMN_NAME, p.getName());
+		values.put(Profile.COLUMN_EXP, p.getExp());
+		values.put(Profile.COLUMN_CREDITS, p.getCredits());
+
+		if (p.getActive() == true)
+			values.put(Profile.COLUMN_ACTIVE, 1);
+		else if (p.getActive() == false)
+			values.put(Profile.COLUMN_ACTIVE, 0);
+		
+		if(p.getActive()) {
+			Cursor c = db.rawQuery("SELECT count(*) FROM " + Profile.TABLE_NAME, null);
+			
+			c.moveToFirst();
+			
+			if (c.getInt(0) > 0) {
+				values.put(Profile.COLUMN_ACTIVE, 0);
+				db.update(Profile.TABLE_NAME, values,
+						Profile.COLUMN_ACTIVE + "= ?", new String[] { "1" });
+			}
+		}
+
+		db.insert(Profile.TABLE_NAME, null, values);
+		db.close();
+	}
+	
+	public void deleteProfile() {
+		SQLiteDatabase db = getWritableDatabase();
+		db.delete(Profile.TABLE_NAME, null, null);
+		db.close();
 	}
 
 }

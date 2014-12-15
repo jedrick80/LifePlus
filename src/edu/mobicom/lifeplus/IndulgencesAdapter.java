@@ -6,6 +6,7 @@ import android.app.AlertDialog.Builder;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.view.LayoutInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup;
@@ -54,12 +55,15 @@ public class IndulgencesAdapter extends BaseAdapter{
         
         if (vi == null)
             vi = inflater.inflate(R.layout.row_indulgences, null);
-        
+
+        final TextView id = (TextView) vi.findViewById(R.id.indulgencesID);
         final TextView name = (TextView) vi.findViewById(R.id.indulgencesName);
-        TextView desc = (TextView) vi.findViewById(R.id.indulgencesDesc);
-        TextView price = (TextView) vi.findViewById(R.id.indulgencesPrice);
-        Button buy = (Button) vi.findViewById(R.id.button_buy);
+        final TextView desc = (TextView) vi.findViewById(R.id.indulgencesDesc);
+        final TextView price = (TextView) vi.findViewById(R.id.indulgencesPrice);
+        final Button buy = (Button) vi.findViewById(R.id.button_buy);
+        final DatabaseManager db = new DatabaseManager(context, Task.DATABASE_NAME, null, 1);
         
+        id.setText(data.get(position).getID() + "");
         name.setText(data.get(position).getName());
         desc.setText(data.get(position).getDesc());
         price.setText(String.valueOf(data.get(position).getPrice()));
@@ -78,7 +82,13 @@ public class IndulgencesAdapter extends BaseAdapter{
         			 * just call db.updateCredits(Profile) for update to credits and db.gainExp to update XP*/
         			@Override
         			public void onClick(DialogInterface dialog, int which) {
-        					Toast.makeText(v.getContext(), "Purchase \"" + name.getText().toString() + ".", Toast.LENGTH_SHORT).show();
+        				Profile p = db.getActiveProfile();
+        				p.setCredits(p.getCredits() - Integer.parseInt(price.getText().toString()));
+        				db.updateCredits(p);
+        				((MainActivity)context).invalidateOptionsMenu();
+        				Toast.makeText(context,
+        						"Purchased \"" + name.getText().toString() + "\".",
+        						Toast.LENGTH_SHORT).show();
     				}
         				
     			});

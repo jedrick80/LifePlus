@@ -33,6 +33,7 @@ public class MainActivity extends Activity implements
 	private Fragment todo_list_fragment;
 	private Fragment indulgences_fragment;
 	private Fragment profile_fragment;
+	private DatabaseManager db;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -53,7 +54,7 @@ public class MainActivity extends Activity implements
 	public void onNavigationDrawerItemSelected(int position) {
 		// update the main content by replacing fragments
 		FragmentManager fragmentManager = getFragmentManager();
-		DatabaseManager db = new DatabaseManager(this, Task.DATABASE_NAME, null, 1);
+		db = new DatabaseManager(this, Task.DATABASE_NAME, null, 1);
 
 		daily_quest_fragment = CustomListFragment.newInstance(1,
 				db.getDailyQuests());
@@ -101,7 +102,7 @@ public class MainActivity extends Activity implements
 			mTitle = getString(R.string.title_section3);
 			break;
 		case 4:
-			mTitle = android.os.Build.MODEL + "\'s " + getString(R.string.title_section4);
+			mTitle = db.getActiveProfile().getName() + "\'s " + getString(R.string.title_section4);
 			break;
 		case 5:
 			mTitle = getString(R.string.title_section5);
@@ -114,6 +115,9 @@ public class MainActivity extends Activity implements
 			break;
 		case 8:
 			mTitle = getString(R.string.title_section8);
+			break;
+		case 9:
+			mTitle = getString(R.string.title_section9);
 			break;
 		}
 	}
