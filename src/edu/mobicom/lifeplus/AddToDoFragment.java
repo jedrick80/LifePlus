@@ -302,7 +302,7 @@ public class AddToDoFragment extends Fragment {
 				Toast.makeText(getActivity(),
 						"Please enter a description for the task.",
 						Toast.LENGTH_SHORT).show();
-			else if (cal.getTime().compareTo(mDate) == 1)
+			else if (mDate != null && cal.getTime().compareTo(mDate) == 1)
 				Toast.makeText(getActivity(),
 						"Please enter a valid date for the task.",
 						Toast.LENGTH_SHORT).show();
