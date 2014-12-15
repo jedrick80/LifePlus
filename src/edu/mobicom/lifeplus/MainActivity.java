@@ -29,13 +29,6 @@ public class MainActivity extends Activity implements
 	 */
 	private CharSequence mTitle;
 
-	private ArrayList<Indulgence> indulgences_values = new ArrayList<Indulgence>() {
-		{
-			add(new Indulgence("Cheat day", "Eat all you can", 20));
-			add(new Indulgence("Movie marathon", "Watch all you can", 10));
-		}
-	};
-
 	private Fragment daily_quest_fragment;
 	private Fragment todo_list_fragment;
 	private Fragment indulgences_fragment;
@@ -67,11 +60,13 @@ public class MainActivity extends Activity implements
 		daily_quest_fragment.setHasOptionsMenu(true);
 
 		todo_list_fragment = CustomListFragment
-				.newInstance(2, db.getTodoList());
+				.newInstance(2, db.getTodoList()); 
 		todo_list_fragment.setHasOptionsMenu(true);
 
 		indulgences_fragment = IndulgencesFragment.newInstance(3,
-				indulgences_values);
+				db.getIndulgenceList());
+		indulgences_fragment.setHasOptionsMenu(true);
+		
 		profile_fragment = ProfileFragment.newInstance(4);
 
 		switch (position) {
@@ -131,7 +126,7 @@ public class MainActivity extends Activity implements
 	}
 
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
+	public boolean onCreateOptionsMenu(Menu menu) {		
 		if (!mNavigationDrawerFragment.isDrawerOpen()) {
 			// Only show items in the action bar relevant to this screen
 			// if the drawer is not showing. Otherwise, let the drawer

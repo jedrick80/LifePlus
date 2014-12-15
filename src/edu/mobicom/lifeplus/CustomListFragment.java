@@ -48,6 +48,7 @@ public class CustomListFragment extends Fragment implements
 	private int mSectionNumber;
 	private ArrayList<Task> mValues;
 	private SwipeDetector swipe = new SwipeDetector();
+	DatabaseManager db;
 
 	private static enum Action {
 		LR, // Left to Right
@@ -107,12 +108,14 @@ public class CustomListFragment extends Fragment implements
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_custom_list, container,
 				false);
+		db = new DatabaseManager(getActivity(),
+				Task.DATABASE_NAME, null, 1);
 
 		// Set the adapter
 		mListView = (AbsListView) view.findViewById(android.R.id.list);
 		mListView.setAdapter(mAdapter);
 
-		// Set OnItemClickListener so we can be notified on item clicks
+		// Set OnItemClickListener 
 		mListView.setOnItemClickListener(this);
 		mListView.setLongClickable(true);
 		mListView.setOnTouchListener(swipe);
@@ -123,23 +126,39 @@ public class CustomListFragment extends Fragment implements
 				// TODO Auto-generated method stub
 				RelativeLayout rl = (RelativeLayout) arg1;
 				TextView itemID = (TextView) rl.findViewById(R.id.itemID);
+				String sItemID = itemID.getText().toString();
 
-				if (mSectionNumber == 1) {
-					Fragment edit_daily_quest_fragment = EditDailyQuestFragment
-							.newInstance(itemID.getText().toString());
-					edit_daily_quest_fragment.setHasOptionsMenu(true);
-					getFragmentManager().beginTransaction()
-							.replace(R.id.container, edit_daily_quest_fragment)
-							.commit();
-				} else if (mSectionNumber == 2) {
-					Fragment edit_todo_fragment = EditToDoFragment.newInstance(
-							"", "");
-					edit_todo_fragment.setHasOptionsMenu(true);
-					getFragmentManager().beginTransaction()
-							.replace(R.id.container, edit_todo_fragment)
-							.commit();
+				Task temp = null;
+				for (Task t : db.getDailyQuests())
+					if (t.getID() == Integer.parseInt(sItemID))
+						temp = t;
+				for (Task t : db.getTodoList())
+					if (t.getID() == Integer.parseInt(sItemID))
+						temp = t;
+
+				if (temp.getStatus()) {
+					Toast.makeText(getActivity(),
+							"Finished tasks can no longer be edited.", Toast.LENGTH_SHORT)
+							.show();
+				} else {
+					if (mSectionNumber == 1) {
+						Fragment edit_daily_quest_fragment = EditDailyQuestFragment
+								.newInstance(sItemID);
+						edit_daily_quest_fragment.setHasOptionsMenu(true);
+						getFragmentManager()
+								.beginTransaction()
+								.replace(R.id.container,
+										edit_daily_quest_fragment).commit();
+					} else if (mSectionNumber == 2) {
+						Fragment edit_todo_fragment = EditToDoFragment
+								.newInstance(sItemID);
+						edit_todo_fragment.setHasOptionsMenu(true);
+						getFragmentManager().beginTransaction()
+								.replace(R.id.container, edit_todo_fragment)
+								.commit();
+					}
 				}
-				
+
 				return true;
 			}
 		});
@@ -185,8 +204,6 @@ public class CustomListFragment extends Fragment implements
 			final TextView name = (TextView) rl.findViewById(R.id.itemName);
 			final TextView desc = (TextView) rl.findViewById(R.id.itemDesc);
 			final CheckBox cb = (CheckBox) rl.findViewById(R.id.itemCheck);
-			final DatabaseManager db = new DatabaseManager(getActivity(),
-					Task.DATABASE_NAME, null, 1);
 
 			if (swipe.swipeDetected()) {
 				if (swipe.getAction() == Action.RL) {
@@ -257,7 +274,7 @@ public class CustomListFragment extends Fragment implements
 			getFragmentManager().beginTransaction()
 					.replace(R.id.container, add_daily_quest_fragment).commit();
 		} else if (item.getItemId() == R.id.add_todo) {
-			Fragment add_todo_fragment = AddToDoFragment.newInstance("", "");
+			Fragment add_todo_fragment = AddToDoFragment.newInstance();
 			add_todo_fragment.setHasOptionsMenu(true);
 			getFragmentManager().beginTransaction()
 					.replace(R.id.container, add_todo_fragment).commit();
@@ -311,7 +328,7 @@ public class CustomListFragment extends Fragment implements
 				case 0:
 					for (int i = 0; i < mAdapter.getCount(); i++) {
 						Task temp = (Task) mAdapter.getItem(i);
-						if (temp.isChecked())
+						if (temp.getChecked())
 							db.deleteTask(temp.getID());
 					}
 
@@ -326,8 +343,10 @@ public class CustomListFragment extends Fragment implements
 				case 1:
 					for (int i = 0; i < mAdapter.getCount(); i++) {
 						Task temp = (Task) mAdapter.getItem(i);
-						if (temp.isChecked())
+						if (temp.getChecked()) {
 							db.setAsDone(temp.getID());
+							db.setChecked(temp.getID(), false);
+						}
 					}
 
 					if (mSectionNumber == 1)

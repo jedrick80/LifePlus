@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-	<item android:id="@+id/add_quest" android:orderInCategory="100" android:title="Add Quest" android:showAsAction="always"></item>
-	<item android:id="@+id/marked_done" android:title="Set marked to done" android:orderInCategory="101" android:showAsAction="ifRoom"></item>
-    <item android:id="@+id/marked_delete" android:showAsAction="ifRoom" android:title="Delete marked" android:orderInCategory="102"></item>
+	<item android:id="@+id/add_quest" android:orderInCategory="100" android:title="Add Quest" android:showAsAction="always" android:icon="@drawable/ic_action_new"></item>
+	<item android:id="@+id/marked_done" android:title="Set marked to done" android:orderInCategory="101" android:showAsAction="ifRoom" android:icon="@drawable/ic_action_accept"></item>
+    <item android:id="@+id/marked_delete" android:showAsAction="ifRoom" android:title="Delete marked" android:orderInCategory="102" android:icon="@drawable/ic_action_discard"></item>
 </menu>

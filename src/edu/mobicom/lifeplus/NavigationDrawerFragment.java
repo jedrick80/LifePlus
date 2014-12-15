@@ -259,11 +259,12 @@ public class NavigationDrawerFragment extends Fragment {
 		// See also
 		// showGlobalContextActionBar, which controls the top-left area of the
 		// action bar.
+		super.onCreateOptionsMenu(menu, inflater);
+
 		if (mDrawerLayout != null && isDrawerOpen()) {
 			inflater.inflate(R.menu.global, menu);
 			showGlobalContextActionBar();
 		}
-		super.onCreateOptionsMenu(menu, inflater);
 	}
 
 	@Override

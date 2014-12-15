@@ -10,7 +10,7 @@
         android:layout_height="wrap_content"
         android:layout_alignParentTop="true"
         android:text="Name"
-        android:textSize="16sp" />
+        android:textSize="18sp" />
  
     <TextView
         android:id="@+id/indulgencesDesc"
@@ -19,14 +19,25 @@
         android:layout_below="@+id/indulgencesName"
         android:text="Description"
         android:textColor="#808080"
-        android:textSize="12sp" />
+        android:textSize="15sp" />
+    
+    <TextView
+        android:id="@+id/indulgencesPrice"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/indulgencesDesc"
+        android:text="Price"
+        android:textColor="#808080"
+        android:textSize="15sp" />
 
     <Button
         android:id="@+id/button_buy"
-        android:layout_width="100dp"
+        android:layout_width="50dp"
         android:layout_height="wrap_content"
+        android:layout_alignBaseline="@+id/indulgencesDesc"
         android:layout_alignBottom="@+id/indulgencesDesc"
         android:layout_alignParentRight="true"
-        android:text="Price" />
+        android:layout_marginRight="26dp"
+        android:background="@drawable/buy" />
  
 </RelativeLayout>

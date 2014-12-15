@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android" >
-    <item android:id="@+id/done" android:orderInCategory="100" android:showAsAction="always" android:title="Done"></item>
-    <item android:id="@+id/cancel" android:orderInCategory="101" android:showAsAction="always" android:title="Cancel"></item>
+    <item android:id="@+id/done" android:orderInCategory="100" android:showAsAction="always" android:title="Done" android:icon="@drawable/ic_action_accept"></item>
+    <item android:id="@+id/cancel" android:orderInCategory="101" android:showAsAction="always" android:title="Cancel" android:icon="@drawable/ic_action_cancel"></item>
 </menu>

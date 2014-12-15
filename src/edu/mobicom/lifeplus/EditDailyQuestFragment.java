@@ -7,7 +7,13 @@ import android.app.Activity;
 import android.app.TimePickerDialog;
 import android.net.Uri;
 import android.os.Bundle;
+import android.provider.MediaStore;
 import android.app.Fragment;
+import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.drawable.BitmapDrawable;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -19,6 +25,8 @@ import android.view.View.OnClickListener;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.ImageView;
 import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.TimePicker;
@@ -44,8 +52,15 @@ public class EditDailyQuestFragment extends Fragment {
 	private EditText etName;
 	private EditText etDesc;
 	private EditText etTime;
-	private EditText etDur;
-	private Spinner spDifficulty;
+	private EditText etDuration;
+	private ImageButton ibNew;
+	private ImageButton ibExisting;
+	private ImageView ivImage;
+	private static final int RESULT_OK = -1;
+	private static final int RESULT_LOAD_IMAGE = 1;
+	private static final int RESULT_CAMERA_REQUEST = 1888;
+	private int mDifficultyPosition;
+	private Task mTask;
 
 	private OnFragmentInteractionListener mListener;
 
@@ -91,29 +106,36 @@ public class EditDailyQuestFragment extends Fragment {
 		etName = (EditText) v.findViewById(R.id.et_edit_daily_name);
 		etDesc = (EditText) v.findViewById(R.id.et_edit_daily_desc);
 		etTime = (EditText) v.findViewById(R.id.et_edit_daily_time);
+		etDuration = (EditText) v.findViewById(R.id.et_edit_quest_duration);
+		ibNew = (ImageButton) v.findViewById(R.id.ib_edit_quest_capture);
+		ibExisting = (ImageButton) v.findViewById(R.id.ib_edit_quest_browse);
+		ivImage = (ImageView) v.findViewById(R.id.iv_edit_quest);
 		TextView tvStatus = (TextView) v
 				.findViewById(R.id.tv_edit_daily_StatusUpdate);
-		spDifficulty = (Spinner) v.findViewById(R.id.sp_edit_quest);
-
+		TextView tvDifficulty = (TextView) v
+				.findViewById(R.id.tv_edit_quest_DifficultyValue);
 		ArrayAdapter<CharSequence> adapter = ArrayAdapter.createFromResource(
 				getActivity(), R.array.spinner_difficulty,
 				android.R.layout.simple_spinner_item);
-		adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
-		spDifficulty.setAdapter(adapter);
 
-		Task temp = null;
+		mTask = null;
 		for (Task t : db.getDailyQuests())
 			if (t.getID() == Integer.parseInt(mItemID))
-				temp = t;
+				mTask = t;
 
-		etName.setText(temp.getName());
-		etDesc.setText(temp.getDesc());
-		etTime.setText(temp.getTime());
+		etName.setText(mTask.getName());
+		etDesc.setText(mTask.getDesc());
+		etTime.setText(mTask.getTime());
+		etDuration.setText(mTask.getDuration());
+		ivImage.setImageBitmap(mTask.getImage());
 
-		if (temp.getStatus() == true)
+		if (mTask.getStatus() == true)
 			tvStatus.setText("Finished");
 		else
 			tvStatus.setText("Active");
+
+		mDifficultyPosition = mTask.getDifficulty();
+		tvDifficulty.setText(adapter.getItem(mTask.getDifficulty()));
 
 		etTime.setOnClickListener(new OnClickListener() {
 
@@ -142,7 +164,51 @@ public class EditDailyQuestFragment extends Fragment {
 			}
 		});
 
+		ibExisting.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent i = new Intent(
+						Intent.ACTION_PICK,
+						android.provider.MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
+				startActivityForResult(i, RESULT_LOAD_IMAGE);
+			}
+		});
+
+		ibNew.setOnClickListener(new OnClickListener() {
+
+			@Override
+			public void onClick(View v) {
+				// TODO Auto-generated method stub
+				Intent cameraIntent = new Intent(
+						android.provider.MediaStore.ACTION_IMAGE_CAPTURE);
+				startActivityForResult(cameraIntent, RESULT_CAMERA_REQUEST);
+			}
+		});
+
 		return v;
+	}
+
+	@Override
+	public void onActivityResult(int requestCode, int resultCode, Intent data) {
+		super.onActivityResult(requestCode, resultCode, data);
+		if (requestCode == RESULT_LOAD_IMAGE && resultCode == RESULT_OK
+				&& null != data) {
+			Uri selectedImage = data.getData();
+			String[] filePathColumn = { MediaStore.Images.Media.DATA };
+			Cursor cursor = getActivity().getContentResolver().query(
+					selectedImage, filePathColumn, null, null, null);
+			cursor.moveToFirst();
+			int columnIndex = cursor.getColumnIndex(filePathColumn[0]);
+			String picturePath = cursor.getString(columnIndex);
+			cursor.close();
+			ivImage.setImageBitmap(BitmapFactory.decodeFile(picturePath));
+		} else if (requestCode == RESULT_CAMERA_REQUEST
+				&& resultCode == RESULT_OK) {
+			Bitmap photo = (Bitmap) data.getExtras().get("data");
+			ivImage.setImageBitmap(photo);
+		}
 	}
 
 	// TODO: Rename method, update argument and hook method into UI event
@@ -213,13 +279,15 @@ public class EditDailyQuestFragment extends Fragment {
 						"Please enter a description for the daily quest.",
 						Toast.LENGTH_SHORT).show();
 			else {
+				mTask.setName(name);
+				mTask.setDesc(desc);
+				mTask.setDuration(etDuration.getText().toString());
+				mTask.setTime(etTime.getText().toString());
+				if (ivImage.getDrawable() != null)
+					mTask.setImage(((BitmapDrawable) ivImage.getDrawable())
+							.getBitmap());
 
-				Task editedQuest = new Task(name, desc, spDifficulty
-						.getSelectedItem().toString(), etDur.getText()
-						.toString(), etTime.getText().toString(), 1, false,
-						false);
-
-				db.editTask(Integer.parseInt(mItemID), editedQuest);
+				db.editTask(mTask.getID(), mTask);
 
 				Fragment daily_quest_fragment = CustomListFragment.newInstance(
 						1, db.getDailyQuests());

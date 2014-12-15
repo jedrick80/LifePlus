@@ -25,7 +25,8 @@
             android:id="@+id/et_edit_daily_name"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.08" >
+            android:layout_weight="0.08"
+            android:hint="Quest Name"  >
 
             <requestFocus />
         </EditText>
@@ -43,6 +44,7 @@
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
         android:gravity="top|left"
+        android:hint="max length of 30 characters"
         android:inputType="textMultiLine"
         android:lines="1"
         android:maxLength="30"
@@ -62,11 +64,11 @@
             android:text="Difficulty*: "
             android:textAppearance="?android:attr/textAppearanceMedium" />
 
-        <Spinner
-            android:id="@+id/sp_edit_quest"
-            android:layout_width="wrap_content"
+        <TextView
+            android:id="@+id/tv_edit_quest_DifficultyValue"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1" />
+            android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
     
   
@@ -89,7 +91,9 @@
             android:layout_height="wrap_content"
             android:maxLines="1"
             android:minLines="1"
-            android:hint="Duration of Quest"
+            android:maxLength="3"
+            android:hint="in minutes"
+            android:inputType="number"
             android:textAppearance="?android:attr/textAppearanceMedium" />
     </LinearLayout>
     
@@ -165,14 +169,14 @@
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_launcher" />
+            android:src="@drawable/ic_action_camera" />
 
         <ImageButton
             android:id="@+id/ib_edit_quest_browse"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:src="@drawable/ic_launcher" />
+            android:src="@drawable/ic_action_picture" />
     </LinearLayout>
 
     <TextView

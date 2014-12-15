@@ -57,13 +57,14 @@ public class IndulgencesAdapter extends BaseAdapter{
         
         final TextView name = (TextView) vi.findViewById(R.id.indulgencesName);
         TextView desc = (TextView) vi.findViewById(R.id.indulgencesDesc);
-        Button price = (Button) vi.findViewById(R.id.button_buy);
+        TextView price = (TextView) vi.findViewById(R.id.indulgencesPrice);
+        Button buy = (Button) vi.findViewById(R.id.button_buy);
         
         name.setText(data.get(position).getName());
         desc.setText(data.get(position).getDesc());
         price.setText(String.valueOf(data.get(position).getPrice()));
         
-        price.setOnClickListener(new OnClickListener() {
+        buy.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(final View v) {
@@ -73,7 +74,8 @@ public class IndulgencesAdapter extends BaseAdapter{
         		builder.setMessage("Are you sure you want to purchase \"" + name.getText().toString() + "\"?");
         		
         		builder.setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-
+        			/*Depends on how you implement profile since update to profile requires a get from db maybe make it somehow global?
+        			 * just call db.updateCredits(Profile) for update to credits and db.gainExp to update XP*/
         			@Override
         			public void onClick(DialogInterface dialog, int which) {
         					Toast.makeText(v.getContext(), "Purchase \"" + name.getText().toString() + ".", Toast.LENGTH_SHORT).show();
