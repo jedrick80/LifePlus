@@ -91,8 +91,6 @@ public class AddDailyQuestFragment extends Fragment {
 		View v = inflater.inflate(R.layout.fragment_add_daily_quest, container,
 				false);
 
-		getActivity().setTitle("Add a Daily Quest");
-
 		etName = (EditText) v.findViewById(R.id.et_add_quest_name);
 		etDesc = (EditText) v.findViewById(R.id.et_add_quest_desc);
 		etTime = (EditText) v.findViewById(R.id.et_add_quest_time);

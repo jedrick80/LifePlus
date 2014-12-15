@@ -79,7 +79,7 @@ public class AddIndulgenceFragment extends Fragment {
 
 				}
 			};
-			((MainActivity) activity).onSectionAttached(5);
+			((MainActivity) activity).onSectionAttached(9);
 			((MainActivity) activity).restoreActionBar();
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()

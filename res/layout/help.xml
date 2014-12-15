@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:paddingBottom="@dimen/activity_vertical_margin"
+    android:paddingLeft="@dimen/activity_horizontal_margin"
+    android:paddingRight="@dimen/activity_horizontal_margin"
+    android:paddingTop="@dimen/activity_vertical_margin" >
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:paddingBottom="20dp"
+        android:text="Life+ introduces a new and fun way to help you finish things you ahve to do."
+        android:textSize="18dp" />
+
+    <TextView
+        android:id="@+id/modes"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_below="@+id/title"
+        android:text="Modes"
+        android:textSize="16dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/modesDQ"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_below="@+id/modes"
+        android:text="• Daily Quests
+Tasks that are accomplished on a daily basis. Tasks on the list can either be randomly generated or customized by the user."
+        android:textSize="12dp" />
+
+    <TextView
+        android:id="@+id/modesTD"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_below="@+id/modesDQ"
+        android:text="• To Do List
+Add tasks that you do not want to forget. Adding a tasks includes adding important details like description, difficulty, duration, due time and date. It also allows you to attach a photo related to the task."
+        android:textSize="12dp" />
+
+    <TextView
+        android:id="@+id/general"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_below="@+id/modesTD"
+        android:paddingBottom="10dp"
+        android:paddingTop="10dp"
+        android:text="Every time you accomplish a task you set it to done in order to earn credit points and experience points, and eventually level up. You can use your credit points to reward yourself prizes from the Indulgence Store."
+        android:textSize="12dp" />
+
+    <TextView
+        android:id="@+id/gestures"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_below="@+id/general"
+        android:text="Gestures"
+        android:textSize="16dp"
+        android:textStyle="bold" />
+
+    <TextView
+        android:id="@+id/gesturesList"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentTop="true"
+        android:layout_below="@+id/gestures"
+        android:text="• Delete\nSwipe to the left.\n• View\nSwipe to the right.\n• Edit\nLong press on a task.\n"
+        android:textSize="12dp" />
+
+</LinearLayout>

@@ -131,6 +131,7 @@ public class EditToDoFragment extends Fragment {
 		etTime.setText(mTask.getTime());
 		if(mTask.getDate() != null)
 			etDate.setText(new SimpleDateFormat("Mmm dd yyyy").format(mTask.getDate()));
+		ivImage.setImageBitmap(mTask.getImage());
 
 		if (mTask.getStatus() == true)
 			tvStatus.setText("Finished");
@@ -272,6 +273,8 @@ public class EditToDoFragment extends Fragment {
 
 				}
 			};
+			((MainActivity) activity).onSectionAttached(8);
+			((MainActivity) activity).restoreActionBar();
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()
 					+ " must implement OnFragmentInteractionListener");

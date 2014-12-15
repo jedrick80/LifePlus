@@ -108,14 +108,13 @@ public class CustomListFragment extends Fragment implements
 			Bundle savedInstanceState) {
 		View view = inflater.inflate(R.layout.fragment_custom_list, container,
 				false);
-		db = new DatabaseManager(getActivity(),
-				Task.DATABASE_NAME, null, 1);
+		db = new DatabaseManager(getActivity(), Task.DATABASE_NAME, null, 1);
 
 		// Set the adapter
 		mListView = (AbsListView) view.findViewById(android.R.id.list);
 		mListView.setAdapter(mAdapter);
 
-		// Set OnItemClickListener 
+		// Set OnItemClickListener
 		mListView.setOnItemClickListener(this);
 		mListView.setLongClickable(true);
 		mListView.setOnTouchListener(swipe);
@@ -137,8 +136,8 @@ public class CustomListFragment extends Fragment implements
 
 				if (temp.getStatus()) {
 					Toast.makeText(getActivity(),
-							"Finished tasks can no longer be edited.", Toast.LENGTH_SHORT)
-							.show();
+							"Finished tasks can no longer be edited.",
+							Toast.LENGTH_SHORT).show();
 				} else {
 					if (mSectionNumber == 1) {
 						Fragment edit_daily_quest_fragment = EditDailyQuestFragment
@@ -245,6 +244,12 @@ public class CustomListFragment extends Fragment implements
 							});
 
 					builder.create().show();
+				} else if (swipe.getAction() == Action.LR) {
+					Fragment view_fragment = TaskInfo.newInstance(Integer
+							.parseInt(itemID.getText().toString()));
+
+					getActivity().getFragmentManager().beginTransaction()
+							.replace(R.id.container, view_fragment).commit();
 				}
 			}
 		}

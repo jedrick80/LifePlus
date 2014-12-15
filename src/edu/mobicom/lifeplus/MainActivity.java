@@ -37,6 +37,7 @@ public class MainActivity extends Activity implements
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+//		deleteDatabase(Task.DATABASE_NAME);
 		overridePendingTransition(0, 0);
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
@@ -69,6 +70,7 @@ public class MainActivity extends Activity implements
 		indulgences_fragment.setHasOptionsMenu(true);
 		
 		profile_fragment = ProfileFragment.newInstance(4);
+		profile_fragment.setHasOptionsMenu(true);
 
 		switch (position) {
 		case 0:
@@ -102,7 +104,7 @@ public class MainActivity extends Activity implements
 			mTitle = getString(R.string.title_section3);
 			break;
 		case 4:
-			mTitle = db.getActiveProfile().getName() + "\'s " + getString(R.string.title_section4);
+			mTitle = getString(R.string.title_section4);
 			break;
 		case 5:
 			mTitle = getString(R.string.title_section5);
@@ -118,6 +120,15 @@ public class MainActivity extends Activity implements
 			break;
 		case 9:
 			mTitle = getString(R.string.title_section9);
+			break;
+		case 10:
+			mTitle = getString(R.string.title_section10);
+			break;
+		case 11:
+			mTitle = getString(R.string.title_section11);
+			break;
+		case 12:
+			mTitle = getString(R.string.title_section12);
 			break;
 		}
 	}
@@ -145,6 +156,10 @@ public class MainActivity extends Activity implements
 
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
+		if (item.getItemId() == R.id.settings) {
+			
+		}
+		
 		return super.onOptionsItemSelected(item);
 	}
 

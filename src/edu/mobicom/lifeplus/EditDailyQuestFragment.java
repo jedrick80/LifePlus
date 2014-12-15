@@ -230,6 +230,8 @@ public class EditDailyQuestFragment extends Fragment {
 
 				}
 			};
+			((MainActivity) activity).onSectionAttached(6);
+			((MainActivity) activity).restoreActionBar();
 		} catch (ClassCastException e) {
 			throw new ClassCastException(activity.toString()
 					+ " must implement OnFragmentInteractionListener");
